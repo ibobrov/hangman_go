@@ -21,18 +21,18 @@ func getDictionary() []string {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	
+
 	data, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	var words []string
 	err = json.Unmarshal(data, &words)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	return words
 }
 
@@ -42,25 +42,25 @@ func getHangmanStages() []string {
 		log.Fatal(err)
 	}
 	defer file.Close()
-	
+
 	data, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	var stages []string
 	err = json.Unmarshal(data, &stages)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	return stages
 }
 
 func getRandomWord(words *[]string) string {
 	generator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	var randomNumber = generator.Intn(len(*words) - 1)
-	
+
 	return (*words)[randomNumber]
 }
 
@@ -96,12 +96,12 @@ func printGoodbye(word string, win bool) {
 
 func printHangman(tries int) {
 	stages := getHangmanStages()
-	
+
 	if tries < 0 || tries >= len(stages) {
 		fmt.Println("Invalid stage number")
 		return
 	}
-	
+
 	fmt.Println(stages[tries])
 }
 
@@ -110,7 +110,7 @@ func askNextGame() bool {
 	fmt.Printf("Want to play a game? (yes/no)")
 	fmt.Println()
 	answer, _ := reader.ReadString('\n')
-	
+
 	for {
 		if answer == "yes\n" {
 			return true
@@ -145,26 +145,26 @@ func updateMask(word string, mask []rune, char rune) []rune {
 			mask[i] = char
 		}
 	}
-	
+
 	return mask
 }
 
 func startGame(words []string) {
 	printGreeting()
-	
+
 	word := getRandomWord(&words)
 	mask := []rune(word)
-	
+
 	for i := range mask {
 		mask[i] = '_'
 	}
-	
+
 	stage := 0
 	maxTries := 6
 	win := false
-	
+
 	printWord(mask)
-	
+
 	for maxTries >= 0 {
 		char := askChar()
 		if charInWord(char, word) {
@@ -178,19 +178,19 @@ func startGame(words []string) {
 			maxTries -= 1
 			printWord(mask)
 		}
-		
+
 		if !charInWord('_', string(mask)) {
 			win = true
 			break
 		}
 	}
-	
+
 	printGoodbye(word, win)
 }
 
 func main() {
 	words := getDictionary()
-	
+
 	for askNextGame() {
 		startGame(words)
 	}
